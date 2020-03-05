@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (C) 2010-2019 Klaralvdalens Datakonsult AB, a KDAB Group company, info@kdab.com.
+** Copyright (C) 2010-2020 Klaralvdalens Datakonsult AB, a KDAB Group company, info@kdab.com.
 ** All rights reserved.
 **
 ** This file is part of the KD Soap library.
@@ -345,6 +345,11 @@ void HttpServerThread::run()
     // Wait for first connection (we'll wait for further ones inside the loop)
     QTcpSocket *clientSocket = m_server->waitForNextConnectionSocket();
     Q_ASSERT(clientSocket);
+    if (!clientSocket) {
+        qWarning() << "No client connected to this server. Fatal error";
+        delete m_server;
+        return;
+    }
 
     Q_FOREVER {
         // get the "request" packet

@@ -1,4 +1,5 @@
 QT       -= gui
+KDWSDL_OPTIONS = -namespace KDAB
 
 include(../unittests.pri)
 

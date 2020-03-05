@@ -1,5 +1,5 @@
 #############################################################################
-## Copyright (C) 2010-2019 Klaralvdalens Datakonsult AB, a KDAB Group company, info@kdab.com.
+## Copyright (C) 2010-2020 Klaralvdalens Datakonsult AB, a KDAB Group company, info@kdab.com.
 ## All rights reserved.
 ##
 ## This file is part of the KD Soap library.
@@ -7,7 +7,6 @@
 ## Licensees holding valid commercial KD Soap licenses may use this file in
 ## accordance with the KD Soap Commercial License Agreement provided with
 ## the Software.
-##
 ##
 ## This file may be distributed and/or modified under the terms of the
 ## GNU Lesser General Public License version 2.1 and version 3 as published by the
@@ -23,10 +22,9 @@
 
 from conans import ConanFile, CMake, tools
 
-
 class KdsoapConan(ConanFile):
     name = "KDSoap"
-    version = "1.8.0"
+    version = "1.9.0"
     license = ("https://raw.githubusercontent.com/KDAB/KDSoap/kdsoap-{0}-release/LICENSE.txt,"
                "https://raw.githubusercontent.com/KDAB/KDSoap/kdsoap-{0}-release/LICENSE.AGPL3-modified.txt,"
                "https://raw.githubusercontent.com/KDAB/KDSoap/kdsoap-{0}-release/LICENSE.GPL.txt,"
@@ -35,6 +33,17 @@ class KdsoapConan(ConanFile):
     url = "https://github.com/KDAB/KDSoap.git"
     description = "KD Soap is a Qt-based client-side and server-side SOAP component."
     generators = "cmake"
+    options = dict({
+        "build_static": [True, False],
+        "build_examples": [True, False],
+        "build_tests": [True, False],
+    })
+    default_options = dict({
+        "build_static": False,
+        "build_examples": True,
+        "build_tests": False,
+    })
+    settings = "build_type"
 
     def requirements(self):
         self.requires("qt/5.13.2@kdab/stable")
@@ -55,6 +64,9 @@ class KdsoapConan(ConanFile):
 
     def build(self):
         self.cmake = CMake(self)
+        self.cmake.definitions["KDSoap_STATIC"] = self.options.build_static
+        self.cmake.definitions["KDSoap_EXAMPLES"] = self.options.build_examples
+        self.cmake.definitions["KDSoap_TESTS"] = self.options.build_tests
         self.cmake.configure()
         self.cmake.build()
 

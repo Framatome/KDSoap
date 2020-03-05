@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (C) 2019 Klaralvdalens Datakonsult AB, a KDAB Group company, info@kdab.com.
+** Copyright (C) 2019-2020 Klaralvdalens Datakonsult AB, a KDAB Group company, info@kdab.com.
 ** All rights reserved.
 **
 ** This file is part of the KD Soap library.
@@ -23,8 +23,8 @@
 
 #include <wsdl.h>
 
-#include <messagehandler.h>
-#include <parsercontext.h>
+#include <common/messagehandler.h>
+#include <common/parsercontext.h>
 
 #include <converter.h>
 #include <creator.h>
