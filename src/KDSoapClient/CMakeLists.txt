@@ -1,13 +1,15 @@
-set(QT_USE_QTNETWORK TRUE)
-include(${QT_USE_FILE})
-
-if(KDSoap_STATIC)
-  add_definitions(-DKDSOAP_STATICLIB)
-else()
-  add_definitions(-DKDSOAP_BUILD_KDSOAP_LIB)
-endif()
-
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+## This file is part of the KD Soap library.
+##
+## SPDX-FileCopyrightText: 2012-2021 Klarälvdalens Datakonsult AB, a KDAB Group company <info@kdab.com>
+##
+## SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDAB-KDSoap OR LicenseRef-KDAB-KDSoap-US
+##
+## Licensees holding valid commercial KD Soap licenses may use this file in
+## accordance with the KD Soap Commercial License Agreement provided with
+## the Software.
+##
+## Contact info@kdab.com if any conditions of this licensing are not clear to you.
+##
 
 set(SOURCES
   KDSoapMessage.cpp
@@ -33,13 +35,21 @@ set(SOURCES
 )
 
 add_library(kdsoap ${KDSoap_LIBRARY_MODE} ${SOURCES})
+if(${PROJECT_NAME}_STATIC)
+  target_compile_definitions(kdsoap PUBLIC KDSOAP_STATICLIB)
+else()
+  target_compile_definitions(kdsoap PRIVATE KDSOAP_BUILD_KDSOAP_LIB)
+endif()
 target_link_libraries(kdsoap ${QT_LIBRARIES})
-set_target_properties(kdsoap PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
 target_include_directories(kdsoap INTERFACE "$<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>")
+set_target_properties(kdsoap PROPERTIES
+  SOVERSION ${${PROJECT_NAME}_SOVERSION}
+  VERSION ${${PROJECT_NAME}_VERSION}
+)
 
-# append d to debug libraries for windows builds
+#version libraries on Windows
 if(WIN32)
-  set(postfix ${${PROJECT_NAME}_VERSION_MAJOR})
+  set(postfix ${${PROJECT_NAME}_SOVERSION})
   string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_BUILD_TYPE)
   if(${UPPER_BUILD_TYPE} MATCHES "^DEBUG")
     string(CONCAT postfix ${postfix} "d")
@@ -102,6 +112,10 @@ if(KDSoap_IS_ROOT_PROJECT)
     RUNTIME DESTINATION ${INSTALL_RUNTIME_DIR}
     LIBRARY DESTINATION ${INSTALL_LIBRARY_DIR}
     ARCHIVE DESTINATION ${INSTALL_ARCHIVE_DIR}
-    )
+  )
+
+  if(MSVC AND NOT ${PROJECT_NAME}_STATIC)
+    install(FILES "$<TARGET_PDB_FILE_DIR:kdsoap>/$<TARGET_PDB_FILE_NAME:kdsoap>" DESTINATION ${INSTALL_LIBRARY_DIR} CONFIGURATIONS Debug RelWithDebInfo)
+  endif()
 
 endif()

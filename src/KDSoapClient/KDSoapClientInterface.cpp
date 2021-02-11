@@ -1,30 +1,23 @@
 /****************************************************************************
-** Copyright (C) 2010-2020 Klaralvdalens Datakonsult AB, a KDAB Group company, info@kdab.com.
-** All rights reserved.
 **
 ** This file is part of the KD Soap library.
+**
+** SPDX-FileCopyrightText: 2010-2021 Klarälvdalens Datakonsult AB, a KDAB Group company <info@kdab.com>
+**
+** SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDAB-KDSoap OR LicenseRef-KDAB-KDSoap-US
 **
 ** Licensees holding valid commercial KD Soap licenses may use this file in
 ** accordance with the KD Soap Commercial License Agreement provided with
 ** the Software.
 **
+** Contact info@kdab.com if any conditions of this licensing are not clear to you.
 **
-** This file may be distributed and/or modified under the terms of the
-** GNU Lesser General Public License version 2.1 and version 3 as published by the
-** Free Software Foundation and appearing in the file LICENSE.LGPL.txt included.
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-** Contact info@kdab.com if any conditions of this licensing are not
-** clear to you.
-**
-**********************************************************************/
+****************************************************************************/
 #include "KDSoapClientInterface.h"
 #include "KDSoapClientInterface_p.h"
 #include "KDSoapNamespaceManager.h"
 #include "KDSoapMessageWriter_p.h"
-#ifndef QT_NO_OPENSSL
+#ifndef QT_NO_SSL
 #include "KDSoapSslHandler.h"
 #include "KDSoapReplySslHandler_p.h"
 #endif
@@ -71,14 +64,14 @@ KDSoapClientInterfacePrivate::KDSoapClientInterfacePrivate()
       m_ignoreSslErrors(false),
       m_timeout(30 * 60 * 1000) // 30 minutes, as documented
 {
-#ifndef QT_NO_OPENSSL
+#ifndef QT_NO_SSL
     m_sslHandler = nullptr;
 #endif
 }
 
 KDSoapClientInterfacePrivate::~KDSoapClientInterfacePrivate()
 {
-#ifndef QT_NO_OPENSSL
+#ifndef QT_NO_SSL
     delete m_sslHandler;
 #endif
 }
@@ -133,7 +126,7 @@ QNetworkRequest KDSoapClientInterfacePrivate::prepareRequest(const QString &meth
         request.setRawHeader(it.key(), it.value());
     }
 
-#ifndef QT_NO_OPENSSL
+#ifndef QT_NO_SSL
     if (!m_sslConfiguration.isNull()) {
         request.setSslConfiguration(m_sslConfiguration);
     }
@@ -227,7 +220,7 @@ void KDSoapClientInterface::ignoreSslErrors()
     d->m_ignoreSslErrors = true;
 }
 
-#ifndef QT_NO_OPENSSL
+#ifndef QT_NO_SSL
 void KDSoapClientInterface::ignoreSslErrors(const QList<QSslError> &errors)
 {
     d->m_ignoreErrorsList = errors;
@@ -267,7 +260,7 @@ void KDSoapClientInterfacePrivate::setupReply(QNetworkReply *reply)
     if (m_ignoreSslErrors) {
         QObject::connect(reply, SIGNAL(sslErrors(QList<QSslError>)), reply, SLOT(ignoreSslErrors()));
     } else {
-#ifndef QT_NO_OPENSSL
+#ifndef QT_NO_SSL
         reply->ignoreSslErrors(m_ignoreErrorsList);
         if (m_sslHandler) {
             // create a child object of the reply, which will forward to m_sslHandler.
@@ -336,7 +329,7 @@ void KDSoapClientInterface::setTimeout(int msecs)
     d->m_timeout = msecs;
 }
 
-#ifndef QT_NO_OPENSSL
+#ifndef QT_NO_SSL
 QSslConfiguration KDSoapClientInterface::sslConfiguration() const
 {
     return d->m_sslConfiguration;

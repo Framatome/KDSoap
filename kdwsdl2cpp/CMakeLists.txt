@@ -1,10 +1,22 @@
-set(QT_USE_QTNETWORK TRUE)
-set(QT_USE_QTXML TRUE)
-include(${QT_USE_FILE})
+## This file is part of the KD Soap library.
+##
+## SPDX-FileCopyrightText: 2012-2021 Klarälvdalens Datakonsult AB, a KDAB Group company <info@kdab.com>
+##
+## SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDAB-KDSoap OR LicenseRef-KDAB-KDSoap-US
+##
+## Licensees holding valid commercial KD Soap licenses may use this file in
+## accordance with the KD Soap Commercial License Agreement provided with
+## the Software.
+##
+## Contact info@kdab.com if any conditions of this licensing are not clear to you.
+##
+
+find_package(Qt5 ${QT_MIN_VERSION} COMPONENTS Xml CONFIG REQUIRED) #libkode requires Xml
+list(APPEND QT_LIBRARIES Qt5::Xml)
+
 include_directories(libkode)
 
 remove_definitions(-DQT_NO_CAST_TO_ASCII -DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_FROM_BYTEARRAY)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(SOURCES_LIB
   libkode/common/fileprovider.cpp
@@ -12,18 +24,19 @@ set(SOURCES_LIB
   libkode/common/nsmanager.cpp
   libkode/common/parsercontext.cpp
   libkode/common/qname.cpp
-  libkode/libkode/code.cpp
-  libkode/libkode/enum.cpp
-  libkode/libkode/style.cpp
-  libkode/libkode/printer.cpp
-  libkode/libkode/license.cpp
-  libkode/libkode/file.cpp
-  libkode/libkode/class.cpp
-  libkode/libkode/function.cpp
-  libkode/libkode/variable.cpp
-  libkode/libkode/membervariable.cpp
-  libkode/libkode/typedef.cpp
-  libkode/libkode/statemachine.cpp
+  libkode/code_generation/class.cpp
+  libkode/code_generation/code.cpp
+  libkode/code_generation/enum.cpp
+  libkode/code_generation/license.cpp
+  libkode/code_generation/file.cpp
+  libkode/code_generation/function.cpp
+  libkode/code_generation/include.cpp
+  libkode/code_generation/membervariable.cpp
+  libkode/code_generation/printer.cpp
+  libkode/code_generation/statemachine.cpp
+  libkode/code_generation/style.cpp
+  libkode/code_generation/typedef.cpp
+  libkode/code_generation/variable.cpp
   libkode/schema/annotation.cpp
   libkode/schema/attribute.cpp
   libkode/schema/complextype.cpp
@@ -67,7 +80,7 @@ set(SOURCES_LIB
 
 set(SOURCES_EXE src/main.cpp)
 
-add_library(kdwsdl2cpp_lib STATIC ${SOURCES_LIB})
+add_library(kdwsdl2cpp_lib STATIC ${SOURCES_LIB} schemas/schemas.qrc)
 target_link_libraries(kdwsdl2cpp_lib ${QT_LIBRARIES})
 
 add_executable(kdwsdl2cpp ${SOURCES_EXE})

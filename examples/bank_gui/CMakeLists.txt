@@ -1,12 +1,21 @@
-project(bank_gui)
+## This file is part of the KD Soap library.
+##
+## SPDX-FileCopyrightText: 2019-2021 Klarälvdalens Datakonsult AB, a KDAB Group company <info@kdab.com>
+##
+## SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDAB-KDSoap OR LicenseRef-KDAB-KDSoap-US
+##
+## Licensees holding valid commercial KD Soap licenses may use this file in
+## accordance with the KD Soap Commercial License Agreement provided with
+## the Software.
+##
+## Contact info@kdab.com if any conditions of this licensing are not clear to you.
+##
 
-include_directories(${QT_QTGUI_INCLUDE_DIR})
+project(bank_gui)
 
 set(bank_gui_SRCS bank_gui.cpp mainwindow.cpp)
 
 KDSOAP_GENERATE_WSDL(bank_gui_SRCS BLZService.wsdl)
 
-qt4_add_resources(bank_gui_SRCS resources.qrc)
-
-add_executable(bank_gui ${bank_gui_SRCS})
-target_link_libraries(bank_gui ${QT_QTCORE_LIBRARY} ${QT_QTXML_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTWIDGETS_LIBRARY} kdsoap)
+add_executable(bank_gui ${bank_gui_SRCS} resources.qrc)
+target_link_libraries(bank_gui ${QT_LIBRARIES} kdsoap)

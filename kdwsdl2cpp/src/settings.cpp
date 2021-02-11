@@ -19,7 +19,6 @@
 
 #define QT_NO_CAST_TO_ASCII
 #define QT_NO_CAST_FROM_ASCII
-#define QT_NO_URL_CAST_FROM_STRING
 
 #include <QDir>
 #include <QDomDocument>
@@ -41,10 +40,37 @@ Settings::Settings()
     mOutputDirectory = QDir::current().path();
     mHeaderFileName = QString::fromLatin1("kwsdl_generated");
     mImplementationFileName = QString::fromLatin1("kwsdl_generated");
-    mImpl = false;
-    mServer = false;
-    mKeepUnusedTypes = false;
     mOptionalElementType = Settings::ENone;
+}
+
+bool Settings::skipAsyncJobs() const
+{
+    return mSkipAsyncJobs;
+}
+
+void Settings::setSkipAsyncJobs(bool skipAsyncJobs)
+{
+    mSkipAsyncJobs = skipAsyncJobs;
+}
+
+bool Settings::skipAsync() const
+{
+    return mSkipAsync;
+}
+
+void Settings::setSkipAsync(bool skipAsync)
+{
+    mSkipAsync = skipAsync;
+}
+
+bool Settings::skipSync() const
+{
+    return mSkipSync;
+}
+
+void Settings::setSkipSync(bool skipSync)
+{
+    mSkipSync = skipSync;
 }
 
 bool Settings::useLocalFilesOnly() const
@@ -252,50 +278,3 @@ bool Settings::helpOnMissing() const
     return mHelpOnMissing;
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
-bool Settings::loadCertificate(const QString &certPath, const QString & password)
-{
-    QFile certFile(certPath);
-    if (certFile.open(QFile::ReadOnly)) {
-        mCertificateLoaded = QSslCertificate::importPkcs12(&certFile,
-                                                     &mSslKey,
-                                                     &mCertificate,
-                                                     &mCaCertificates,
-                                                     password.toLocal8Bit());
-        certFile.close();
-        if (!mCertificateLoaded) {
-            fprintf(stderr, "Unable to load the %s certificate file\n",
-                    certPath.toLocal8Bit().constData());
-            if (!password.isEmpty())
-                fprintf(stderr, "Please make sure that you have passed the correct password\n");
-            else
-                fprintf(stderr, "Maybe it is password protected?\n");
-        }
-        return mCertificateLoaded;
-    } else {
-        fprintf(stderr, "Failed to open the %s certificate file for reading\n",
-                certPath.toLocal8Bit().constData());
-    }
-    return false;
-}
-
-QList<QSslCertificate> Settings::caCertificates() const
-{
-    return mCaCertificates;
-}
-
-QSslCertificate Settings::certificate() const
-{
-    return mCertificate;
-}
-
-QSslKey Settings::sslKey() const
-{
-    return mSslKey;
-}
-
-bool Settings::certificateLoaded() const
-{
-    return mCertificateLoaded;
-}
-#endif

@@ -14,7 +14,10 @@ SOURCES = compiler.cpp \
 HEADERS = compiler.h \
     converter.h \
     elementargumentserializer.h
-INCLUDEPATH += $${TOP_SOURCE_DIR}/kdwsdl2cpp
+
+RESOURCES += ../schemas/schemas.qrc
+
+INCLUDEPATH += $${TOP_SOURCE_DIR}/kdwsdl2cpp $${TOP_SOURCE_DIR}/kdwsdl2cpp/libkode
 QT -= gui
 QT += xml
 
@@ -33,6 +36,9 @@ win32-msvc*:PRE_TARGETDEPS += $${TOP_BUILD_DIR}/lib/kode.lib \
     $${TOP_BUILD_DIR}/lib/xmlschema.lib \
     $${TOP_BUILD_DIR}/lib/xmlcommon.lib
 LIBS += -L$${TOP_BUILD_DIR}/lib \
+        -L$${TOP_BUILD_DIR}/kdwsdl2cpp/libkode/code_generation \
+        -L$${TOP_BUILD_DIR}/kdwsdl2cpp/libkode/schema \
+        -L$${TOP_BUILD_DIR}/kdwsdl2cpp/libkode/common \
     -lkode \
     -lwsdl \
     -lxmlschema \

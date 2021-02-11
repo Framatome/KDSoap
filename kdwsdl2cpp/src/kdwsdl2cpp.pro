@@ -1,9 +1,10 @@
 TEMPLATE = app
 TARGET = kdwsdl2cpp
 SOURCES = main.cpp
-INCLUDEPATH += $${TOP_SOURCE_DIR}/kdwsdl2cpp
+INCLUDEPATH += $${TOP_SOURCE_DIR}/kdwsdl2cpp $${TOP_SOURCE_DIR}/kdwsdl2cpp/libkode
 QT -= gui
 QT += xml
+QT += network
 
 CONFIG += console
 macx:CONFIG -= app_bundle
@@ -21,6 +22,9 @@ win32-msvc*:PRE_TARGETDEPS += $${TOP_BUILD_DIR}/lib/kode.lib \
     $${TOP_BUILD_DIR}/lib/xmlschema.lib \
     $${TOP_BUILD_DIR}/lib/xmlcommon.lib
 LIBS += -L$${TOP_BUILD_DIR}/lib \
+        -L$${TOP_BUILD_DIR}/kdwsdl2cpp/libkode/code_generation \
+        -L$${TOP_BUILD_DIR}/kdwsdl2cpp/libkode/schema \
+        -L$${TOP_BUILD_DIR}/kdwsdl2cpp/libkode/common \
     -l$${KDWSDL2CPP_LIB} \
     -lkode \
     -lwsdl \

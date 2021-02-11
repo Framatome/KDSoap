@@ -1,13 +1,21 @@
+## This file is part of the KD Soap library.
+##
+## SPDX-FileCopyrightText: 2012-2021 Klarälvdalens Datakonsult AB, a KDAB Group company <info@kdab.com>
+##
+## SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDAB-KDSoap OR LicenseRef-KDAB-KDSoap-US
+##
+## Licensees holding valid commercial KD Soap licenses may use this file in
+## accordance with the KD Soap Commercial License Agreement provided with
+## the Software.
+##
+## Contact info@kdab.com if any conditions of this licensing are not clear to you.
+##
+
 project(helloworld_client)
 
-include_directories(${QT_QTGUI_INCLUDE_DIR})
+set(helloworld_client_SRCS main.cpp helloworld_client.h)
 
-set(helloworld_client_SRCS main.cpp)
+KDSOAP_GENERATE_WSDL(helloworld_client_SRCS helloworld.wsdl)
 
-set(helloworld_client_HRDS helloworld_client.h )
-qt4_wrap_cpp( helloworld_client_MOCS ${helloworld_client_HRDS} )
-
-KDSOAP_GENERATE_WSDL(helloworld_client_SRCS helloworld.wsdl )
-
-add_executable(helloworld_client ${helloworld_client_SRCS} ${helloworld_client_MOCS} )
-target_link_libraries(helloworld_client ${QT_QTCORE_LIBRARY} ${QT_QTXML_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTWIDGETS_LIBRARY} kdsoap)
+add_executable(helloworld_client ${helloworld_client_SRCS})
+target_link_libraries(helloworld_client ${QT_LIBRARIES} kdsoap)

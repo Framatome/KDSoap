@@ -25,6 +25,8 @@
 
 #include <schema/parser.h>
 
+#include "../src/settings.h"
+
 #include <QDebug>
 
 #include "type.h"
@@ -54,9 +56,19 @@ XSD::Types Type::types() const
     return mTypes;
 }
 
+static QMap<QUrl, QString> localSchemas()
+{
+    QMap<QUrl, QString> map;
+    map.insert(QUrl(QLatin1String("http://schemas.xmlsoap.org/soap/encoding/")), QLatin1String(":/libkode/soapenc-1.1.xsd"));
+    map.insert(QUrl(QLatin1String("http://www.w3.org/2003/05/soap-encoding")), QLatin1String(":/libkode/soapenc-1.2.xsd"));
+    return map;
+}
+
 bool Type::loadXML(ParserContext *context, const QDomElement &element)
 {
-    XSD::Parser parser(context, nameSpace());
+    XSD::Parser parser(context, nameSpace(),
+                       Settings::self()->useLocalFilesOnly(), Settings::self()->importPathList());
+    parser.setLocalSchemas(localSchemas());
     QDomElement child = element.firstChildElement();
     while (!child.isNull()) {
         NSManager namespaceManager(context, child);

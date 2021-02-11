@@ -2,7 +2,7 @@ These are the instructions for installing KD SOAP using the CMake buildsystem.
 CMake version 3.0.2 or higher is required.
 
 KD SOAP 1.9 or below requires Qt version >= 4.6 with Network and XML support enabled.
-KD SOAP 1.10 or above requires Qt version >= 5.6 with Network and XML support enabled.
+KD SOAP 1.10 or above requires Qt version >= 5.7 with Network and XML support enabled.
 
 Please see the comments at the top of CMakeLists.txt for
 the available configuration options you can pass to cmake.
@@ -38,7 +38,8 @@ location by passing the option -DCMAKE_INSTALL_PREFIX=/install/path to cmake.
     % export LD_LIBRARY_PATH
 
    The above must be added into your .bashrc or similar to remain. It may also of course
-   be run from a shell just before building software using KD SOAP, but in this case your settings will only be available for this shell.
+   be run from a shell just before building software using KD SOAP, but in this case
+   your settings will only be available for this shell.
 
 4) MacOS
 
@@ -72,3 +73,19 @@ location by passing the option -DCMAKE_INSTALL_PREFIX=/install/path to cmake.
 
 8) Have a look at the examples applications. They will get you started with KD SOAP.
 
+== Testing ==
+To build the testing harness, pass -DKDSoap_TESTS=true to CMake, like so:
+  % cmake -DKDSoap_TESTS=true
+
+Then run 'make test' to run the unit tests.
+
+== Using ==
+From your CMake project, add
+
+    find_package(KDSoap CONFIG REQUIRED)
+
+and link to the imported target KDSoap::kdsoap.
+That's all you need to do (the imported target also brings in the include directories)
+
+You may also need to point the CMAKE_MODULE_PATH environment variable depending
+on where you installed KDSoap.

@@ -1,25 +1,18 @@
 /****************************************************************************
-** Copyright (C) 2010-2020 Klaralvdalens Datakonsult AB, a KDAB Group company, info@kdab.com.
-** All rights reserved.
 **
 ** This file is part of the KD Soap library.
+**
+** SPDX-FileCopyrightText: 2010-2021 Klarälvdalens Datakonsult AB, a KDAB Group company <info@kdab.com>
+**
+** SPDX-License-Identifier: LicenseRef-KDAB-KDSoap-AGPL3-Modified OR LicenseRef-KDAB-KDSoap OR LicenseRef-KDAB-KDSoap-US
 **
 ** Licensees holding valid commercial KD Soap licenses may use this file in
 ** accordance with the KD Soap Commercial License Agreement provided with
 ** the Software.
 **
+** Contact info@kdab.com if any conditions of this licensing are not clear to you.
 **
-** This file may be distributed and/or modified under the terms of the
-** GNU Lesser General Public License version 2.1 and version 3 as published by the
-** Free Software Foundation and appearing in the file LICENSE.LGPL.txt included.
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-** Contact info@kdab.com if any conditions of this licensing are not
-** clear to you.
-**
-**********************************************************************/
+****************************************************************************/
 #include "KDSoapServerSocket_p.h"
 #include "KDSoapSocketList_p.h"
 #include "KDSoapServerObjectInterface.h"
@@ -40,7 +33,7 @@
 #include <QVarLengthArray>
 
 KDSoapServerSocket::KDSoapServerSocket(KDSoapSocketList *owner, QObject *serverObject)
-#ifndef QT_NO_OPENSSL
+#ifndef QT_NO_SSL
     : QSslSocket(),
 #else
     : QTcpSocket(),
@@ -101,7 +94,7 @@ static HeadersMap parseHeaders(const QByteArray &headerData)
 }
 
 // We could parse headers as we go along looking for \r\n, and stop at empty header line, to avoid all this memory copying
-// But in practice XML parsing (and writing) is far far slower anyway.
+// But in practice XML parsing (and writing) is far, far slower anyway.
 static bool splitHeadersAndData(const QByteArray &request, QByteArray &header, QByteArray &data)
 {
     const int sep = request.indexOf("\r\n\r\n");

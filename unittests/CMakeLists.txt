@@ -1,11 +1,20 @@
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(QT_USE_QTNETWORK TRUE)
-set(QT_USE_QTXML TRUE)
-set(QT_USE_QTTEST TRUE)
+## This file is part of the KD Soap library.
+##
+## SPDX-FileCopyrightText: 2012-2021 Klarälvdalens Datakonsult AB, a KDAB Group company <info@kdab.com>
+##
+## SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDAB-KDSoap OR LicenseRef-KDAB-KDSoap-US
+##
+## Licensees holding valid commercial KD Soap licenses may use this file in
+## accordance with the KD Soap Commercial License Agreement provided with
+## the Software.
+##
+## Contact info@kdab.com if any conditions of this licensing are not clear to you.
+##
 
-include(${QT_USE_FILE})
+find_package(Qt5 ${QT_MIN_VERSION} COMPONENTS Test CONFIG REQUIRED)
+list(APPEND QT_LIBRARIES Qt5::Test)
 
-include_directories(../src/ ../src/KDSoapClient/ ../src/KDSoapServer/ ../testtools/ ../kdwsdl2cpp/ ../kdwsdl2cpp/src/ ../kdwsdl2cpp/libkode/ ../kdwsdl2cpp/common/ ../kdwsdl2cpp/schema/ ../kdwsdl2cpp/wsdl/)
+include_directories(../src/ ../src/KDSoapClient/ ../src/KDSoapServer/ ../testtools/ ../kdwsdl2cpp/ ../kdwsdl2cpp/src/ ../kdwsdl2cpp/libkode/code_generation/ ../kdwsdl2cpp/libkode/ ../kdwsdl2cpp/libkode/schema/ ../kdwsdl2cpp/wsdl/)
 include(../KDSoapMacros.cmake)
 
 remove_definitions(-DQT_NO_CAST_FROM_ASCII)
@@ -15,13 +24,14 @@ macro(add_unittest _source)
   get_filename_component(_name ${_source} NAME_WE)
 
   if(WSDL_FILES)
+    set(KSWSDL2CPP_OPTION ${KSWSDL2CPP_OPTION} -use-local-files-only)
     kdsoap_generate_wsdl(_test ${WSDL_FILES})
   endif()
 
   add_executable(${_name} ${_source} ${_test})
 
   add_test(NAME kdsoap-${_name} COMMAND ${_name})
-  target_link_libraries(${_name} ${QT_QTCORE_LIBRARY} ${QT_LIBRARIES} kdsoap testtools)
+  target_link_libraries(${_name} ${QT_LIBRARIES} kdsoap testtools)
   if(EXTRA_LIBS)
     target_link_libraries(${_name} ${EXTRA_LIBS})
   endif()
@@ -60,6 +70,7 @@ add_subdirectory(specialchars_wsdl)
 add_subdirectory(optionaltype_regular)
 add_subdirectory(optionaltype_pointer)
 add_subdirectory(enum_escape)
+add_subdirectory(enum_with_length_restriction)
 add_subdirectory(soap12)
 add_subdirectory(literal_true_false)
 add_subdirectory(import_definition)
@@ -71,17 +82,15 @@ add_subdirectory(ws_addressing_support)
 add_subdirectory(ws_usernametoken_support)
 add_subdirectory(empty_element_wsdl)
 add_subdirectory(ws_discovery_wsdl)
-if (Qt5Core_FOUND)
 add_subdirectory(soap_over_udp)
-endif()
 
 # These need internet access
 add_subdirectory(webcalls)
 add_subdirectory(webcalls_wsdl)
 
-if (BOOST_OPTIONAL_FOUND)
-add_subdirectory(optionaltype_boost_optional)
-add_subdirectory(default_attribute_value_wsdl)
+if(BOOST_OPTIONAL_DIR)
+  add_subdirectory(optionaltype_boost_optional)
+  add_subdirectory(default_attribute_value_wsdl)
 endif()
 
 add_subdirectory(test_calc)
@@ -90,7 +99,6 @@ add_subdirectory(date_example)
 add_subdirectory(enzo)
 add_subdirectory(fault_namespace)
 add_subdirectory(empty_list_wsdl)
-add_subdirectory(list_restriction)
 
 add_subdirectory(kddatetime)
 

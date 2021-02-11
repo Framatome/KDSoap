@@ -1,6 +1,3 @@
-[submodule "autogen"]
-	path = autogen
-	url = git@github.com:Framatome/autogen.git
 [submodule "kdwsdl2cpp/libkode"]
 	path = kdwsdl2cpp/libkode
 	url = git@github.com:Framatome/libkode.git

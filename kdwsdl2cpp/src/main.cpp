@@ -20,12 +20,15 @@
 #include "compiler.h"
 #include "settings.h"
 
+#include <QCoreApplication>
+#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QNetworkAccessManager>
+#include <QSslCertificate>
+#include <QSslKey>
 #include <QTimer>
-#include <QCoreApplication>
-#include <QDebug>
 
 static const char *WSDL2CPP_DESCRIPTION = "KDAB's WSDL to C++ compiler";
 static const char *WSDL2CPP_VERSION_STR = "2.1";
@@ -67,14 +70,17 @@ static void showHelp(const char *appName)
             "                            use of the import-path option\n"
             "  -help-on-missing          When groups or basic types could not be found, display\n"
             "                            available types (helps with wrong namespaces)\n"
-#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0) && !defined(QT_NO_SSL)
             "  -pkcs12file               Load a certificate from a PKCS12 file. You can use this option\n"
             "                            if the WSDL file (or files refering to it) is served from a \n"
             "                            location which require certificate based authentication\n"
             "  -pkcs12password           Pass the password for the certificate file if required.\n"
             "                            This option is not secure and should be used with caution\n"
-            "                            if other users of the machine are capable to see the running "
+            "                            if other users of the machine are capable to see the running\n"
             "                            processes ran by the current user.\n"
+            "  -no-sync                  Do not generate synchronous API methods to the client code\n"
+            "  -no-async                 Do not generate asynchronous API methods to the client code\n"
+            "  -no-async-jobs            Do not generate asynchronous job API classes to the client code\n"
 #endif
             "\n", appName, appName, appName);
 }
@@ -82,6 +88,8 @@ static void showHelp(const char *appName)
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
+
+    Q_INIT_RESOURCE(schemas);
 
     const char *fileName = nullptr;
     QFileInfo outputFile;
@@ -99,7 +107,10 @@ int main(int argc, char **argv)
     QStringList importPathList;
     bool useLocalFilesOnly = false;
     bool helpOnMissing = false;
+    bool skipAsync = false, skipSync = false, skipAsyncJobs = false;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0) && !defined(QT_NO_SSL)
     QString pkcs12File, pkcs12Password;
+#endif
 
     int arg = 1;
     while (arg < argc) {
@@ -217,7 +228,7 @@ int main(int argc, char **argv)
             useLocalFilesOnly = true;
         } else if (opt == QLatin1String("-help-on-missing")) {
             helpOnMissing = true;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0) && !defined(QT_NO_SSL)
         } else if (opt == QLatin1String("-pkcs12file")) {
             ++arg;
             if (!argv[arg]) {
@@ -233,6 +244,12 @@ int main(int argc, char **argv)
             }
             pkcs12Password = QLatin1String(argv[arg]);
 #endif
+        } else if (opt == QLatin1String("-no-sync")) {
+            skipSync = true;
+        } else if (opt == QLatin1String("-no-async")) {
+            skipAsync = true;
+        } else if (opt == QLatin1String("-no-async-jobs")) {
+            skipAsyncJobs = true;
         } else if (!fileName) {
             fileName = argv[arg];
         } else {
@@ -286,12 +303,45 @@ int main(int argc, char **argv)
     Settings::self()->setImportPathList(importPathList);
     Settings::self()->setUseLocalFilesOnly(useLocalFilesOnly);
     Settings::self()->setHelpOnMissing(helpOnMissing);
+    Settings::self()->setSkipSync(skipSync);
+    Settings::self()->setSkipAsync(skipAsync);
+    Settings::self()->setSkipAsyncJobs(skipAsyncJobs);
 
     KWSDL::Compiler compiler;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0) && !defined(QT_NO_SSL)
     if (!pkcs12File.isEmpty()) {
-        if (!Settings::self()->loadCertificate(pkcs12File, pkcs12Password))
-            return -1;
+        QFile certFile(pkcs12File);
+        if (certFile.open(QFile::ReadOnly)) {
+            QSslKey key;
+            QSslCertificate certificate;
+            QList<QSslCertificate> caCertificates;
+            const bool certificateLoaded = QSslCertificate::importPkcs12(&certFile,
+                                                         &key,
+                                                         &certificate,
+                                                         &caCertificates,
+                                                         pkcs12Password.toLocal8Bit());
+            certFile.close();
+            if (!certificateLoaded) {
+                fprintf(stderr, "Unable to load the %s certificate file\n",
+                        pkcs12File.toLocal8Bit().constData());
+                if (!pkcs12Password.isEmpty())
+                    fprintf(stderr, "Please make sure that you have passed the correct password\n");
+                else
+                    fprintf(stderr, "Maybe it is password protected?\n");
+                return 1;
+            }
+
+            // set the loaded certificate info as default SSL config
+            QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
+            sslConfig.setPrivateKey(key);
+            sslConfig.setLocalCertificate(certificate);
+            sslConfig.setCaCertificates(caCertificates);
+            QSslConfiguration::setDefaultConfiguration(sslConfig);
+        } else {
+            fprintf(stderr, "Failed to open the %s certificate file for reading\n",
+                    pkcs12File.toLocal8Bit().constData());
+            return 1;
+        }
     }
 #endif
 

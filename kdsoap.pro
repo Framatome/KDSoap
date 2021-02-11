@@ -1,3 +1,31 @@
+## This file is part of the KD Soap library.
+##
+## SPDX-FileCopyrightText: 2009-2021 Klarälvdalens Datakonsult AB, a KDAB Group company <info@kdab.com>
+##
+## SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDAB-KDSoap OR LicenseRef-KDAB-KDSoap-US
+##
+## Licensees holding valid commercial KD Soap licenses may use this file in
+## accordance with the KD Soap Commercial License Agreement provided with
+## the Software.
+##
+## Contact info@kdab.com if any conditions of this licensing are not clear to you.
+##
+
+system('echo ==================================================================================')
+system('echo The QMake Buildsystem is deprecated and will be removed in the next major release.')
+system('echo Please consider migrating to the CMake Buildsystem at your earliest opportunity.')
+system('echo Instructions can be found in INSTALL-cmake.txt')
+system('echo ==================================================================================')
+system('echo')
+
+equals(QT_MAJOR_VERSION, 5):lessThan(QT_MINOR_VERSION, 7) {
+    error("Qt $$QT_VERSION not supported. Please use Qt 5.7 or higher")
+}
+
+!exists($$PWD/kdwsdl2cpp/libkode/common) {
+    error("Please do git submodule update --init --recursive")
+}
+
 TEMPLATE = subdirs
 crosscompiling {
     module_kdwsdl2cpp.commands =
@@ -101,13 +129,14 @@ test.depends = first
 QMAKE_EXTRA_TARGETS += test
 
 INSTALL_DOC_DIR = $$INSTALL_PREFIX/share/doc/KDSoap
+
 # install licenses:
-licenses.files = LICENSE.GPL.txt LICENSE.txt
-licenses.path = $$INSTALL_DOC_DIR
+licenses.files = LICENSES/*
+licenses.path = $$INSTALL_DOC_DIR/LICENSES
 INSTALLS += licenses
 
 # install readme:
-readme.files = README.txt
+readme.files = README.txt README-commercial.txt
 readme.path = $$INSTALL_DOC_DIR
 INSTALLS += readme
 

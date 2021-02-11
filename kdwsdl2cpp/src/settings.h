@@ -21,8 +21,6 @@
 #define SETTINGS_H
 
 #include <QMap>
-#include <QSslCertificate>
-#include <QSslKey>
 #include <QStringList>
 #include <QUrl>
 
@@ -87,13 +85,14 @@ public:
     bool helpOnMissing() const;
     void setHelpOnMissing(bool b);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
-    bool loadCertificate(const QString & certPath, const QString &password = QString());
-    bool certificateLoaded() const;
-    QSslKey sslKey() const;
-    QSslCertificate certificate() const;
-    QList<QSslCertificate> caCertificates() const;
-#endif
+    bool skipSync() const;
+    void setSkipSync(bool skipSync);
+
+    bool skipAsync() const;
+    void setSkipAsync(bool skipAsync);
+
+    bool skipAsyncJobs() const;
+    void setSkipAsyncJobs(bool skipAsyncJobs);
 
 private:
     friend class SettingsSingleton;
@@ -108,19 +107,16 @@ private:
     QString mNameSpace;
     QStringList mImportPathList;
     NSMapping mNamespaceMapping;
-    bool mHeader;
-    bool mImpl;
-    bool mServer;
     OptionalElementType mOptionalElementType;
-    bool mKeepUnusedTypes;
-    bool mUseLocalFilesOnly;
-    bool mHelpOnMissing;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
-    QSslKey mSslKey;
-    QSslCertificate mCertificate;
-    QList<QSslCertificate> mCaCertificates;
-    bool mCertificateLoaded = false;
-#endif
+    bool mHeader = false;
+    bool mImpl = false;
+    bool mServer = false;
+    bool mKeepUnusedTypes = false;
+    bool mUseLocalFilesOnly = false;
+    bool mHelpOnMissing = false;
+    bool mSkipSync = false;
+    bool mSkipAsync = false;
+    bool mSkipAsyncJobs = false;
 };
 
 #endif
